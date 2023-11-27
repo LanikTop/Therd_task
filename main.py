@@ -1,10 +1,40 @@
 import sys
+import io
 from random import choice
 from PyQt5 import uic
 from PyQt5.QtGui import QPainter, QColor
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
-template = """<?xml version="1.0" encoding="UTF-8"?>
+
+class Example(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        f = io.StringIO(Template().template)
+        uic.loadUi(f, self)
+        self.do_paint = False
+        self.pushButton.clicked.connect(self.paint)
+
+    def paintEvent(self, event):
+        if self.do_paint:
+            qp = QPainter()
+            qp.begin(self)
+            for i in range(choice(range(10))):
+                self.draw_circle(qp)
+            qp.end()
+        self.do_paint = False
+
+    def paint(self):
+        self.do_paint = True
+        self.update()
+
+    def draw_circle(self, qp):
+        qp.setBrush(QColor(choice(range(256)), choice(range(256)), choice(range(256))))
+        qp.drawEllipse(choice(range(800)), choice(range(600)), choice(range(800)), choice(range(600)))
+
+
+class Template:
+    def __init__(self):
+        self.template = """<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
@@ -50,31 +80,6 @@ template = """<?xml version="1.0" encoding="UTF-8"?>
  <connections/>
 </ui>
 """
-
-
-class Example(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        uic.loadUi('UI.ui', self)
-        self.do_paint = False
-        self.pushButton.clicked.connect(self.paint)
-
-    def paintEvent(self, event):
-        if self.do_paint:
-            qp = QPainter()
-            qp.begin(self)
-            for i in range(choice(range(10))):
-                self.draw_circle(qp)
-            qp.end()
-        self.do_paint = False
-
-    def paint(self):
-        self.do_paint = True
-        self.update()
-
-    def draw_circle(self, qp):
-        qp.setBrush(QColor(255, 255, 0))
-        qp.drawEllipse(choice(range(800)), choice(range(600)), choice(range(800)), choice(range(600)))
 
 
 if __name__ == '__main__':
